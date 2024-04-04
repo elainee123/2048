@@ -1,0 +1,319 @@
+from utilities import generate_piece, print_board
+import copy
+DEV_MODE = True
+
+
+def main(game_board: [[int, ], ]) -> [[int, ], ]:
+    global lost
+    """
+    2048 main function, runs a game of 2048 in the console.
+
+    Uses the following keys:
+    w - shift up
+    a - shift left
+    s - shift down
+    d - shift right
+    q - ends the game and returns control of the console
+    :param game_board: a 4x4 2D list of integers representing a game of 2048
+    :return: returns the ending game board
+    """
+    # Initialize board's first cell
+    lost = False
+    validinput = ['a', 's', 'd', 'w', 'q']
+    gameinput = ''
+    instance = 0
+    move = 0
+    while gameinput != 'q' and game_over(game_board) == False:
+        move += 1
+        print(move)
+        if instance == 0:
+            print('instance')
+            
+            try:
+                for i in range(2):
+                    pieceRowColumnValue = generate_piece(game_board)
+                    print(pieceRowColumnValue)
+                    game_board[pieceRowColumnValue['row']][pieceRowColumnValue['column']] = pieceRowColumnValue['value']
+                    #print(generate_piece(game_board)['value'])
+                print_board(game_board)
+                print('before move')
+                gameinput = input()
+                if gameinput == 'q':
+                    print('Goodbye')
+                    break
+                #print_board(game_board)
+                instance += 1
+            except: 
+                print()
+        else:
+            pieceRowColumnValue = generate_piece(game_board)
+            game_board[pieceRowColumnValue['row']][pieceRowColumnValue['column']] = pieceRowColumnValue['value']
+            print('before move')
+            print_board(game_board)
+            if lost == True:
+                break
+            if gameinput == 'q':
+                print('Goodbye')
+            gameinput = input()
+        if game_over(game_board) == True:
+            break
+        if gameinput not in validinput:
+            gameinput = input()
+        if gameinput == 'a':
+            game_board = a(game_board)
+            #print(game_board)
+            #print_board(game_board)
+        elif gameinput == 'd':
+            game_board = d(game_board)
+            #print_board(game_board)
+        elif gameinput == 's':
+            game_board = s(game_board)
+            #print_board(game_board)
+        elif gameinput == 'w':
+            game_board = w(game_board)
+            #print_board(game_board)
+        if win(game_board) == True:
+            print('Win')
+            break
+    
+    # TODO: generate a random piece and location using the generate_piece function
+    # TODO: place the piece at the specified location
+    #generate_piece(game_board: [[int, ], ], user_input=False)
+    # Game Loop
+    
+        # TODO: UPDATE/ADD PIECE TO BOARD
+        # place a random piece on the board
+        # check to see if the game is over using the game_over function
+
+        # TODO: Show updated board using the print_board function
+
+        # TODO: GET AND EXECUTE USER MOVE
+        # Take input until the user's move is a valid key
+        # if the user quits the game, print Goodbye and stop the Game Loop
+        # User's Move Loop:
+            # Execute the user's move
+            # Compare board before user's move & after user's move
+                # get and execute another move if board has not changed
+
+        # Check if the user wins
+    return game_board
+def win(board):
+    count = 0
+    for i in range(len(board)):
+        if 2048 in board[i]:
+            return True 
+        else:
+            return False
+def a(board):
+    finallst = []
+    for i in range(len(board)):
+        newlst = []
+        for num in board[i]:
+            if num != 0:
+                newlst.append(num)
+        finallst.append(newlst)
+    #print(finallst)
+    for i in range(len(finallst)):
+        if len(finallst[i]) > 1:
+            for num in range(len(finallst[i]) - 1):
+                if finallst[i][num] == finallst[i][num + 1]:
+                    finallst[i][num] = finallst[i][num] * 2
+                    finallst[i][num + 1] = 0
+                    #somehow change it so that the zeros will be removed afterwards?
+    #print(finallst)
+    templst = finallst[:]
+    newtemplst = []
+    for i in range(len(templst)):
+        newtemplst = []
+        for num in range(len(templst[i])):
+            if templst[i][num] != 0:
+                newtemplst.append(templst[i][num])
+        finallst[i] = newtemplst
+        
+    #print(finallst)
+    for i in range(len(board)):
+        count = 0
+        for index, value in enumerate(board[i]):
+            if index >= len(finallst[i]):
+                        # [0, 1, 2, 3] [0, 1] == 2
+                board[i][index] = 0
+            else:
+                board[i][index] = finallst[i][count]
+                count += 1
+    return board
+    
+    
+def d(board):
+    finallst = []
+    for i in range(len(board)):
+        newlst = []
+        for num in board[i]:
+            if num != 0:
+                newlst.append(num)
+        finallst.append(newlst)
+    #print(finallst)
+    for i in range(len(finallst)):
+        if len(finallst[i]) > 1:
+            for num in range(1, len(finallst[i])):
+                if finallst[i][-num] == finallst[i][-num - 1]:
+                    finallst[i][-num] = finallst[i][-num] * 2
+                    finallst[i][-num - 1] = 0
+    #print(finallst)
+    templst = finallst[:]
+    newtemplst = []
+    for i in range(len(templst)):
+        newtemplst = []
+        for num in range(len(templst[i])):
+            if templst[i][num] != 0:
+                newtemplst.append(templst[i][num])
+        finallst[i] = newtemplst
+        
+    #print(finallst)
+    for i in range(len(board)):
+        count = 0
+        for index, value in enumerate(board[i]):
+            if index < 4 - len(finallst[i]):
+                board[i][index] = 0
+            else:
+                board[i][index] = finallst[i][count]
+                count += 1
+    return board
+
+def s(board):
+    newlst = []
+    finallst = []
+    count = 0
+    for i in range(len(board)):
+        count += 1
+        newlst = []
+        for itwo in range(len(board)):
+            if board[itwo][i] != 0:
+                newlst.append(board[itwo][i])
+        finallst.append(newlst)
+    for i in range(len(finallst)):
+        changed = False
+        if len(finallst[i]) > 1:
+            print(finallst[i])
+            for num in range(1, len(finallst[i])):
+                if finallst[i][-num] == finallst[i][-num - 1] and changed == False:
+                    finallst[i][-num] = finallst[i][-num] * 2
+                    finallst[i][-num - 1] = 0
+                    changed = True
+                else:
+                    changed = False
+    #print(finallst)
+    templst = finallst[:]
+    newtemplst = []
+    for i in range(len(templst)):
+        newtemplst = []
+        for num in range(len(templst[i])):
+            if templst[i][num] != 0:
+                newtemplst.append(templst[i][num])
+        finallst[i] = newtemplst
+        
+    #print(finallst)
+    for i in range(len(board)):
+        #EDIT FROM HERE DOWN FOR VERTICAL DIRECTION
+        count = 0
+        for itwo in range(len(board)):
+            if itwo < 4 - len(finallst[i]):
+                # [0, 1, 2, 3] [0, 1] == 2
+                board[itwo][i] = 0
+            else:
+                board[itwo][i] = finallst[i][count]
+                count += 1
+    return board
+    
+def w(board):   
+    newlst = []
+    finallst = []
+    count = 0
+    for i in range(len(board)):
+        count += 1
+        newlst = []
+        for itwo in range(len(board)):
+            if board[itwo][i] != 0:
+                newlst.append(board[itwo][i])
+        finallst.append(newlst)
+    print(finallst)
+    for i in range(len(finallst)):
+        changed = False
+        if len(finallst[i]) > 1:
+            print(finallst[i])
+            for num in range(1, len(finallst[i])):
+                if finallst[i][num] == finallst[i][num - 1] and changed == False:
+                    finallst[i][num] = finallst[i][num] * 2
+                    changed = True
+                    finallst[i][num - 1] = 0
+                else:
+                    changed = False
+            print(finallst)
+    templst = finallst[:]
+    newtemplst = []
+    for i in range(len(templst)):
+        newtemplst = []
+        for num in range(len(templst[i])):
+            if templst[i][num] != 0:
+                newtemplst.append(templst[i][num])
+        finallst[i] = newtemplst        
+    print(finallst)
+    for i in range(len(board)):
+        #EDIT FROM HERE DOWN FOR VERTICAL DIRECTION
+        count = 0
+        for itwo in range(len(board)):
+            if itwo >= len(finallst[i]):
+                # [0, 1, 2, 3] [0, 1] == 2
+                board[itwo][i] = 0
+            else:
+                board[itwo][i] = finallst[i][count]
+                count += 1
+    return board 
+def game_over(game_board: [[int, ], ]) -> bool:
+    global lost
+    count = 0
+    for i in range(len(game_board) - 1):
+        for num in range(1, len(game_board[i])):
+            if game_board[i][num - 1] == game_board[i][num] or game_board[i][num] == game_board[i + 1][num] or game_board[i][num] == 0:
+                count += 1     
+    for i in range(1, len(game_board[-1])):
+        if  game_board[i][num - 1] == game_board[i][num]:
+            count += 1
+    for i in range(len(game_board)):
+        for num in game_board[i]:
+            if num == 0:
+                count += 1
+    if count > 0:
+        return False 
+    else:
+        return True
+
+def game_ove(game_board: [[int, ], ]) -> bool:
+    count = 0
+    for i in range(len(game_board)):
+        for num in game_board[i]:
+            if num > 0:
+                count += 1
+    if count == 16:
+        return True
+    else:
+        return False
+    
+    
+    """
+    Query the provided board's game state.
+
+    :param game_board: a 4x4 2D list of integers representing a game of 2048
+    :return: Boolean indicating if the game is over (True) or not (False)
+    """
+    # TODO: Loop over the board and determine if the game is over
+    # TODO: Don't always return false
+
+
+if __name__ == "__main__":
+    lost = False
+    main([
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    ])
